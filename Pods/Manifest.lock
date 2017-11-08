@@ -1,15 +1,25 @@
 PODS:
   - Alamofire (4.5.1)
+  - ObjcExceptionBridging (1.0.1):
+    - ObjcExceptionBridging/ObjcExceptionBridging (= 1.0.1)
+  - ObjcExceptionBridging/ObjcExceptionBridging (1.0.1)
   - SwiftyJSON (3.1.4)
+  - XCGLogger (6.0.1):
+    - XCGLogger/Core (= 6.0.1)
+  - XCGLogger/Core (6.0.1):
+    - ObjcExceptionBridging
 
 DEPENDENCIES:
   - Alamofire
   - SwiftyJSON
+  - XCGLogger
 
 SPEC CHECKSUMS:
   Alamofire: 2d95912bf4c34f164fdfc335872e8c312acaea4a
+  ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
   SwiftyJSON: c2842d878f95482ffceec5709abc3d05680c0220
+  XCGLogger: b4ca980580108cfeaf221afe158f5d89c1be22e0
 
-PODFILE CHECKSUM: 1c3ba03d978753de52cba2387626c0fc4fb75548
+PODFILE CHECKSUM: 8400e45805c9ef50c5738ef65547b8faaadb2a5f
 
 COCOAPODS: 1.2.0

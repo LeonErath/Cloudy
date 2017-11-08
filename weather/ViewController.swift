@@ -5,108 +5,146 @@
 //  Created by Leon Erath on 13.10.17.
 //  Copyright © 2017 Leon Erath. All rights reserved.
 //
-
 import UIKit
 import Alamofire
 import SwiftyJSON
+import AVFoundation
 
 
-class ViewController: UIViewController {
-    @IBOutlet weak var city: UILabel!
+class ViewController: UIViewController,UIPickerViewDelegate,UIPickerViewDataSource,WeatherDataConsumer,SettingsControllerDelegate {
+    
+    @IBOutlet weak var cityLabel: UILabel!
     @IBOutlet weak var temperature: UILabel!
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var ldescription: UILabel!
     
-    @IBOutlet weak var imageViewFor1: UIImageView!
-    @IBOutlet weak var imageViewFor2: UIImageView!
-    @IBOutlet weak var imageViewFor3: UIImageView!
+    @IBOutlet weak var refreshButton: UIBarButtonItem!
+    @IBOutlet weak var background: UIImageView!
+    
+    @IBOutlet weak var intervallPicker: UIPickerView!
     
     public var cityString : String = ""
-    let key = "88e8ca00173155df504118c5aee531dd"
-    let baseURL = "https://api.openweathermap.org/data/2.5/weather"
-    let forecastuRL = "https://api.openweathermap.org/data/2.5/forecast"
+    var audioplayer : AVAudioPlayer = AVAudioPlayer()
+    
+    let networkController = NetworkController()
+    let settingsController = SettingsController.shared
+    
+    var savedlocation: String = ""
+    var updateTimer: Timer? = nil
+    var networkErrorShown: Bool = false
+    
+    var weatherDataProvider : WeatherDataProvider?
+    
+    func receiveWeatherData(model: WeatherData) {
+            self.cityLabel.text = model.cityName
+            self.imageView.image = model.weatherImage
+            self.temperature.text = "\(model.temperature)°C"
+            self.ldescription.text = model.description
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        weatherDataProvider = WeatherModel()
+        weatherDataProvider?.weatherDataConsumer = self
+    }
+    
+    var pickerData: [String] = ["1 Sekunde","5 Sekunden","10 Sekunden", "60 Sekunden"]
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return pickerData.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return pickerData[row]
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        intervallPicker.isHidden = true
+        self.updateTimer?.invalidate()
+        switch row {
+        case 0:
+            self.settingsController.refreshInterval = 1
+        case 1:
+            self.settingsController.refreshInterval = 5
+        case 2:
+            self.settingsController.refreshInterval = 10
+        case 3:
+           self.settingsController.refreshInterval = 30
+        default:
+           self.settingsController.refreshInterval = 60
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-        makeRequest()
-        getForecast()
-        print("city:"+cityString)
+       
+//        do{
+//            if !audioplayer.isPlaying{
+//                audioplayer = try AVAudioPlayer(contentsOf: URL.init(fileURLWithPath: Bundle.main.path(forResource: "sample", ofType: "mp3")!))
+//                audioplayer.prepareToPlay()
+//                audioplayer.play()
+//            }
+//        }catch{
+//            log.error("cant play music")
+//        }
+        
+        self.settingsController.delegate = self
+        self.intervallPicker.delegate = self
+        self.intervallPicker.dataSource = self
+        intervallPicker.isHidden = true
+        
+        blurBackground()
+        if let location = SettingsController.shared.location {
+            cityString = location
+            updateTimer = Timer.scheduledTimer(timeInterval: Double(settingsController.refreshInterval), target: self, selector: #selector(self.updateWeather), userInfo: nil, repeats: true)
+            updateWeather()
+        }else{
+            log.error("no location found from SettingsController")
+            navigationController?.popViewController(animated: true)
+        }
     }
-
+    
+    @objc func updateWeather() {
+        self.weatherDataProvider?.fetchWeather(from: cityString)
+    }
+    
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        updateTimer?.invalidate()
+    }
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
 
-
-    func makeRequest(){
-        let parameters: Parameters = ["APPID": key,
-                                      "q":cityString,
-                                      "units":"metric",
-                                      "lang":"de"]
-        Alamofire.request(baseURL,method: .get,parameters:parameters).responseJSON { response in
-            print("Result: \(response.result)")                         // response serialization result
-            
-            if  response.data != nil{
-                let json = JSON(data:response.data!)
-                let name = json["name"].stringValue
-                self.city.text = name
-                let weather = json["weather"].arrayValue
-                for currentWeather in weather{
-                    if let imageid = currentWeather["icon"].string{
-                        self.imageView.image = UIImage.init(named: imageid)
-                        self.ldescription.text = currentWeather["description"].stringValue
-                    }
-                }
-                let main = json["main"]
-                let temp = main["temp"].doubleValue
-                self.temperature.text = "\(temp)°C"
-                
-            }
-            
-        }
+    func blurBackground(){
+        background.image = #imageLiteral(resourceName: "background2")
+        
+        let blurEffect = UIBlurEffect(style: UIBlurEffectStyle.light)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.frame = view.bounds
+        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        
+        background.addSubview(blurEffectView)
+    }
     
+    @IBAction func refreshClick(_ sender: Any) {
+        intervallPicker.isHidden = false
     }
-    func getForecast(){
-        let parameters: Parameters = ["APPID": key,
-                                      "q":cityString,
-                                      "units":"metric",
-                                      "lang":"de",
-                                      "type":"accurate"]
-        Alamofire.request(forecastuRL,method: .get,parameters:parameters).responseJSON { response in
-            print("Result: \(response.result)")                         // response serialization result
-            
-            if  response.data != nil{
-                let json = JSON(data:response.data!)
-                let list = json["list"].arrayValue
-          
-                let weather = list[0]["weather"].arrayValue
-                    for currentWeather in weather{
-                        if let imageid = currentWeather["icon"].string{
-                            self.imageViewFor1.image = UIImage.init(named: imageid)
-                           
-                        }
-                }
-                let weather2 = list[1]["weather"].arrayValue
-                for currentWeather in weather2{
-                    if let imageid = currentWeather["icon"].string{
-                        self.imageViewFor2.image = UIImage.init(named: imageid)
-                        
-                    }
-                }
-                let weather3 = list[2]["weather"].arrayValue
-                for currentWeather in weather3{
-                    if let imageid = currentWeather["icon"].string{
-                        self.imageViewFor3.image = UIImage.init(named: imageid)
-          
-                    }
-                }
-             
-                
-            }
-            
+    
+    
+    func locationDidChange(location: String?) {
+        if let loc = location {
+              cityString = loc
         }
     }
+    
+    func refreshIntervalDidChange(refreshInterval: Int) {
+        updateTimer = Timer.scheduledTimer(timeInterval: Double(refreshInterval), target: self, selector: #selector(self.updateWeather), userInfo: nil, repeats: true)
+    }
+    
 }
 

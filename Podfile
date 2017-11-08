@@ -10,5 +10,5 @@ target 'weather' do
   # Pods for weather
   pod 'Alamofire'
   pod 'SwiftyJSON'
-
+  pod 'XCGLogger'
 end
