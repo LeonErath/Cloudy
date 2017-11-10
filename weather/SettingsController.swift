@@ -28,7 +28,9 @@ class SettingsController {
             delegate?.locationDidChange(location: newValue)
         }
         get {
-            log.info("Found saved location:"+defaults.string(forKey: "location")!)
+            if let loc = defaults.string(forKey: "location"){
+                log.info("Found saved location:"+loc)
+            }
             return defaults.string(forKey: "location")
         }
     }

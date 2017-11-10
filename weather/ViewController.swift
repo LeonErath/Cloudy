@@ -114,14 +114,14 @@ class ViewController: UIViewController,UIPickerViewDelegate,UIPickerViewDataSour
     }
 
     func blurBackground(){
-        background.image = #imageLiteral(resourceName: "background2")
         
-        let blurEffect = UIBlurEffect(style: UIBlurEffectStyle.light)
-        let blurEffectView = UIVisualEffectView(effect: blurEffect)
-        blurEffectView.frame = view.bounds
-        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
-        background.addSubview(blurEffectView)
+//        let blurEffect = UIBlurEffect(style: UIBlurEffectStyle.light)
+//        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+//        blurEffectView.frame = view.bounds
+//        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+//        
+//        background.addSubview(blurEffectView)
     }
     
     @IBAction func refreshClick(_ sender: Any) {
