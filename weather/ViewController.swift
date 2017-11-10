@@ -8,7 +8,6 @@
 import UIKit
 import Alamofire
 import SwiftyJSON
-import AVFoundation
 
 
 class ViewController: UIViewController,UIPickerViewDelegate,UIPickerViewDataSource,WeatherDataConsumer,SettingsControllerDelegate {
@@ -24,7 +23,6 @@ class ViewController: UIViewController,UIPickerViewDelegate,UIPickerViewDataSour
     @IBOutlet weak var intervallPicker: UIPickerView!
     
     public var cityString : String = ""
-    var audioplayer : AVAudioPlayer = AVAudioPlayer()
     
     let networkController = NetworkController()
     let settingsController = SettingsController.shared
@@ -48,7 +46,7 @@ class ViewController: UIViewController,UIPickerViewDelegate,UIPickerViewDataSour
         weatherDataProvider?.weatherDataConsumer = self
     }
     
-    var pickerData: [String] = ["1 Sekunde","5 Sekunden","10 Sekunden", "60 Sekunden"]
+    var pickerData: [String] = ["10 Sekunden","20 Sekunden","60 Sekunden","2 Minuten", "5 Minuten"]
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
@@ -67,30 +65,20 @@ class ViewController: UIViewController,UIPickerViewDelegate,UIPickerViewDataSour
         self.updateTimer?.invalidate()
         switch row {
         case 0:
-            self.settingsController.refreshInterval = 1
-        case 1:
-            self.settingsController.refreshInterval = 5
-        case 2:
             self.settingsController.refreshInterval = 10
+        case 1:
+            self.settingsController.refreshInterval = 20
+        case 2:
+            self.settingsController.refreshInterval = 60
         case 3:
-           self.settingsController.refreshInterval = 30
+           self.settingsController.refreshInterval = 120
         default:
-           self.settingsController.refreshInterval = 60
+           self.settingsController.refreshInterval = 300
         }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-       
-//        do{
-//            if !audioplayer.isPlaying{
-//                audioplayer = try AVAudioPlayer(contentsOf: URL.init(fileURLWithPath: Bundle.main.path(forResource: "sample", ofType: "mp3")!))
-//                audioplayer.prepareToPlay()
-//                audioplayer.play()
-//            }
-//        }catch{
-//            log.error("cant play music")
-//        }
         
         self.settingsController.delegate = self
         self.intervallPicker.delegate = self
