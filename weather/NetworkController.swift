@@ -10,7 +10,6 @@ import UIKit
 import Alamofire
 import SwiftyJSON
 
-public var cityString : String = ""
 let key = "88e8ca00173155df504118c5aee531dd"
 let baseURL = "https://api.openweathermap.org/data/2.5/weather"
 let forecastuRL = "https://api.openweathermap.org/data/2.5/forecast"
@@ -18,6 +17,7 @@ let forecastuRL = "https://api.openweathermap.org/data/2.5/forecast"
 class NetworkController{
     
     func getWeather(from city: String,callBack: @escaping (_ :DefaultDataResponse) -> Void ){
+        log.info("start Request for"+city)
         let parameters: Parameters = ["APPID"   :   key,
                                       "q"       :   city,
                                       "units"   :   "metric",

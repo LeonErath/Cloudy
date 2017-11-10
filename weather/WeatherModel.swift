@@ -31,7 +31,7 @@ class WeatherModel : WeatherDataProvider{
                 let json = JSON(data:response.data!)
                 let cod = json["cod"].intValue
                 if cod == 200{
-                    log.debug("Request successful")
+                    log.info("Request successful on location:"+cityName)
                     self.weatherData.cityName = json["name"].stringValue
                     for currentWeather in json["weather"].arrayValue{
                         if let imageid = currentWeather["icon"].string{
@@ -44,7 +44,7 @@ class WeatherModel : WeatherDataProvider{
                     self.weatherDataConsumer?.receiveWeatherData(model: self.weatherData )
                     
                 }else{
-                    log.error("URL Request NOT successful.")
+                    log.error("URL Request NOT successful. City was not found")
                     self.weatherData.cityName = "City not found"
                     self.weatherData.weatherImage = #imageLiteral(resourceName: "sadcloud")
                     self.weatherData.description = ""

@@ -66,14 +66,19 @@ class ViewController: UIViewController,UIPickerViewDelegate,UIPickerViewDataSour
         switch row {
         case 0:
             self.settingsController.refreshInterval = 10
+           
         case 1:
             self.settingsController.refreshInterval = 20
+           
         case 2:
             self.settingsController.refreshInterval = 60
+            
         case 3:
            self.settingsController.refreshInterval = 120
+            
         default:
            self.settingsController.refreshInterval = 300
+            
         }
     }
     
@@ -126,11 +131,13 @@ class ViewController: UIViewController,UIPickerViewDelegate,UIPickerViewDataSour
     
     func locationDidChange(location: String?) {
         if let loc = location {
+                log.info("location was changed to "+loc)
               cityString = loc
         }
     }
     
     func refreshIntervalDidChange(refreshInterval: Int) {
+        log.info("refreshInterval was changed to \(refreshInterval)")
         updateTimer = Timer.scheduledTimer(timeInterval: Double(refreshInterval), target: self, selector: #selector(self.updateWeather), userInfo: nil, repeats: true)
     }
     

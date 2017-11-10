@@ -27,7 +27,7 @@ class NavigationController : UIViewController{
         
         
         if let location = SettingsController.shared.location{
-            log.info("Saved location found.")
+             log.info("Start ViewController with saved location..")
             performSegue(withIdentifier: "weather", sender: self)
         }
         
@@ -36,6 +36,7 @@ class NavigationController : UIViewController{
     
     @IBAction func onClick(_ sender: Any) {
         if let text = textField.text{
+            log.info("Location is valid. Start ViewController..")
             SettingsController.shared.location = text
             performSegue(withIdentifier: "weather", sender: sender)
         }

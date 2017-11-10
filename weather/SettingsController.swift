@@ -28,6 +28,7 @@ class SettingsController {
             delegate?.locationDidChange(location: newValue)
         }
         get {
+            log.info("Found saved location:"+defaults.string(forKey: "location")!)
             return defaults.string(forKey: "location")
         }
     }
@@ -39,6 +40,7 @@ class SettingsController {
         }
         get {
             if defaults.integer(forKey: "refreshInterval") != 0{
+                log.info("Found saved refreshInterval \(defaults.integer(forKey: "refreshInterval"))")
                 return defaults.integer(forKey: "refreshInterval")
             }else{
                 return 30
