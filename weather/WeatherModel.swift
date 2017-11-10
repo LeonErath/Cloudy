@@ -27,8 +27,8 @@ class WeatherModel : WeatherDataProvider{
     func fetchWeather(from cityName: String) {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         networkController.getWeather(from: cityName){ response in
-            if  response.data != nil{
-                let json = JSON(data:response.data!)
+            if  response != nil && response?.data != nil{
+                let json = JSON(data:response!.data!)
                 let cod = json["cod"].intValue
                 if cod == 200{
                     log.info("Request successful on location:"+cityName)
@@ -54,6 +54,12 @@ class WeatherModel : WeatherDataProvider{
                     self.weatherDataConsumer?.receiveWeatherData(model: self.weatherData )
                 }
             }else{
+                UIApplication.shared.isNetworkActivityIndicatorVisible = false
+                self.weatherData.cityName = "No Internet Connection"
+                self.weatherData.weatherImage = #imageLiteral(resourceName: "sadcloud")
+                self.weatherData.description = ""
+                self.weatherData.temperature = 0
+                self.weatherDataConsumer?.receiveWeatherData(model: self.weatherData )
                 log.error("response is nil")
             }
         }

@@ -16,7 +16,7 @@ let forecastuRL = "https://api.openweathermap.org/data/2.5/forecast"
 
 class NetworkController{
     
-    func getWeather(from city: String,callBack: @escaping (_ :DefaultDataResponse) -> Void ){
+    func getWeather(from city: String,callBack: @escaping (_ :DefaultDataResponse?) -> Void ){
         log.info("start Request for"+city)
         let parameters: Parameters = ["APPID"   :   key,
                                       "q"       :   city,
@@ -30,7 +30,7 @@ class NetworkController{
                             }
         }else{
             log.error("Network is not reachable.")
-          
+            callBack(nil)
         }
         
     }
